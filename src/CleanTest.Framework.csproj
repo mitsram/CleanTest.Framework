@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>CleanTest.Framework</PackageId>
-    <Version>1.0.0-alpha.1</Version>
+    <Version>{{Version}}</Version>
     <Authors>Mitchell Ramos</Authors>
     <Company>mitsram</Company>    
   </PropertyGroup>
