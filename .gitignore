@@ -90,3 +90,4 @@ Assets/AssetStoreTools*
 ClientBin/
 [Tt]est[Rr]esult*/
 .env
+.output
