@@ -6,7 +6,11 @@
     <PackageId>CleanTest.Framework</PackageId>
     <Version>{{Version}}</Version>
     <Authors>Mitchell Ramos</Authors>
-    <Company>mitsram</Company>    
+    <Company>mitsram</Company>
+    <Description>Adapters and factories for clean test architecture</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/mitsram/CleanTest.Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Playwright" Version="1.48.0"/>
