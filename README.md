@@ -84,8 +84,8 @@ public class ShopPage
 
     // ... rest of the code here
 }
-
 ```
+The `driver` is of type IWebDriverAdapter, that will be implemented by specific adapter like Playwright or Selenium depending on the configuration.
 
 ## Contribution
 We welcome contributions to CleanTest.Framework! If you would like to contribute, please follow these steps:
