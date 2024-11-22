@@ -10,15 +10,17 @@ namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
 public class SeleniumWebDriverAdapter : IWebDriverAdapter
 {
     private readonly IWebDriver _driver;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SeleniumWebDriverAdapter"/> class.
-    /// </summary>
-    /// <param name="driver">The IWebDriver instance to be used by the adapter.</param>
+    
     public SeleniumWebDriverAdapter(IWebDriver driver)
     {
         _driver = driver;
     }
+
+    /// <summary>
+    /// Gets the current URL of the browser.
+    /// </summary>
+    /// <returns>The current URL as a string.</returns>
+    public string GetCurrentUrl() => _driver.Url;
 
     /// <summary>
     /// Navigates to the specified URL.
@@ -35,40 +37,12 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         new SeleniumWebElementAdapter(_driver.FindElement(By.Id(id)));
 
     /// <summary>
-    /// Finds an element by its XPath and returns an IWebElementAdapter.
-    /// </summary>
-    /// <param name="xpath">The XPath of the element to find.</param>
-    /// <returns>An IWebElementAdapter representing the found element.</returns>
-    public IWebElementAdapter FindElementByXPath(string xpath) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.XPath(xpath)));
-
-    /// <summary>
     /// Finds an element by its class name and returns an IWebElementAdapter.
     /// </summary>
     /// <param name="className">The class name of the element to find.</param>
     /// <returns>An IWebElementAdapter representing the found element.</returns>
     public IWebElementAdapter FindElementByClassName(string className) =>
         new SeleniumWebElementAdapter(_driver.FindElement(By.ClassName(className)));
-
-    /// <summary>
-    /// Finds multiple elements by their CSS selector and returns a collection of IWebElementAdapter.
-    /// </summary>
-    /// <param name="cssSelector">The CSS selector to find elements.</param>
-    /// <returns>A collection of IWebElementAdapter representing the found elements.</returns>
-    public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
-        _driver.FindElements(By.CssSelector(cssSelector))
-            .Select(e => new SeleniumWebElementAdapter(e))
-            .ToList();
-
-    /// <summary>
-    /// Finds multiple elements by their XPath and returns a collection of IWebElementAdapter.
-    /// </summary>
-    /// <param name="xpath">The XPath to find elements.</param>
-    /// <returns>A collection of IWebElementAdapter representing the found elements.</returns>
-    public IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath) =>
-        _driver.FindElements(By.XPath(xpath))
-            .Select(e => new SeleniumWebElementAdapter(e))
-            .ToList();
 
     /// <summary>
     /// Finds multiple elements by their class name and returns a collection of IWebElementAdapter.
@@ -81,15 +55,66 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
             .ToList();
 
     /// <summary>
-    /// Gets the current URL of the browser.
+    /// Finds multiple elements by their CSS selector and returns a collection of IWebElementAdapter.
     /// </summary>
-    /// <returns>The current URL as a string.</returns>
-    public string GetCurrentUrl() => _driver.Url;
+    /// <param name="cssSelector">The CSS selector to find elements.</param>
+    /// <returns>A collection of IWebElementAdapter representing the found elements.</returns>
+    public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
+        _driver.FindElements(By.CssSelector(cssSelector))
+            .Select(e => new SeleniumWebElementAdapter(e))
+            .ToList();
 
     /// <summary>
-    /// Disposes of the WebDriver instance, quitting the browser.
+    /// Finds an element by its XPath and returns an IWebElementAdapter.
     /// </summary>
-    public void Dispose() => _driver.Quit();
+    /// <param name="xpath">The XPath of the element to find.</param>
+    /// <returns>An IWebElementAdapter representing the found element.</returns>
+    public IWebElementAdapter FindElementByXPath(string xpath) =>
+        new SeleniumWebElementAdapter(_driver.FindElement(By.XPath(xpath)));
+
+    /// <summary>
+    /// Finds multiple elements by their XPath and returns a collection of IWebElementAdapter.
+    /// </summary>
+    /// <param name="xpath">The XPath to find elements.</param>
+    /// <returns>A collection of IWebElementAdapter representing the found elements.</returns>
+    public IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath) =>
+        _driver.FindElements(By.XPath(xpath))
+            .Select(e => new SeleniumWebElementAdapter(e))
+            .ToList();
+
+    /// <summary>
+    /// Finds an element by its placeholder attribute and returns an IWebElementAdapter.
+    /// </summary>
+    /// <param name="placeholder">The placeholder text of the element to find.</param>
+    /// <returns>
+    /// An <see cref="IWebElementAdapter"/> representing the found element.
+    /// </returns>
+    /// <exception cref="NoSuchElementException">Thrown if no element with the specified placeholder is found.</exception>
+    public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
+        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector($"[placeholder='{placeholder}']")));
+
+    /// <summary>
+    /// Finds an element by its role attribute and returns an IWebElementAdapter.
+    /// </summary>
+    /// <param name="role">The role of the element to find.</param>
+    /// <returns>
+    /// An <see cref="IWebElementAdapter"/> representing the found element.
+    /// </returns>
+    /// <exception cref="NoSuchElementException">Thrown if no element with the specified role is found.</exception>
+    public IWebElementAdapter FindElementByRole(string role) =>
+        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector($"[role='{role}']")));
+
+    /// <summary>
+    /// Finds an element by its label text and returns an IWebElementAdapter.
+    /// This method locates the label element and retrieves the associated input element.
+    /// </summary>
+    /// <param name="label">The text of the label associated with the element to find.</param>
+    /// <returns>
+    /// An <see cref="IWebElementAdapter"/> representing the found element.
+    /// </returns>
+    /// <exception cref="NoSuchElementException">Thrown if no element with the specified label is found.</exception>
+    public IWebElementAdapter FindElementByLabel(string label) =>
+        new SeleniumWebElementAdapter(_driver.FindElement(By.XPath($"//label[text()='{label}']/following-sibling::*")));
 
     /// <summary>
     /// Waits for an element to be found by its XPath, retrying a specified number of times if necessary.
@@ -126,5 +151,10 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
 
         throw new Exception($"Failed to find element by XPath after {maxRetries} attempts: {xpath}");
     }
+
+    /// <summary>
+    /// Disposes of the WebDriver instance, quitting the browser.
+    /// </summary>
+    public void Dispose() => _driver.Quit();
 }
 
