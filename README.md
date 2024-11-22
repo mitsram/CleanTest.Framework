@@ -87,6 +87,12 @@ public class ShopPage
 ```
 The `driver` is of type IWebDriverAdapter, that will be implemented by specific adapter like Playwright or Selenium depending on the configuration.
 
+## Example Test Project
+
+For a complete example test project using CleanTest.Framework, please visit the following GitHub repository:
+
+* [SauceDemo.Tests](https://github.com/mitsram/SauceDemo.Tests)
+
 ## Contribution
 We welcome contributions to CleanTest.Framework! If you would like to contribute, please follow these steps:
 
