@@ -1,6 +1,7 @@
 # CleanTest.Framework
 
 ![NuGet Version](https://img.shields.io/nuget/v/CleanTest.Framework.svg)
+![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
 
 CleanTest.Framework is a powerful solution designed to streamline your test automation process. With CleanTest, you can easily switch between different automation tools without the need to rewrite your existing tests. This flexibility allows you to adapt to changing project requirements and leverage the best tools available in the market.
 
