@@ -1,0 +1,29 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Define your Key Vault name and secret name
+  keyVaultName: 'YourKeyVaultName'
+  secretName: 'YourSecretName'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'YourAzureSubscription' # Service connection to Azure
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Fetch the secret from Azure Key Vault
+      secretValue=$(az keyvault secret show --name $(secretName) --vault-name $(keyVaultName) --query value -o tsv)
+      echo "##vso[task.setvariable variable=SECRET_VALUE;isOutput=true]$secretValue"
+
+- script: |
+    # Run your Playwright tests here, using the secret value
+    echo "Using secret value in Playwright test"
+    echo "Secret Value: $(SECRET_VALUE)" # Use the secret value as needed
+    # Example command to run Playwright tests
+    # npx playwright test --env SECRET_VALUE=$(SECRET_VALUE)
+  displayName: 'Run Playwright Tests'
