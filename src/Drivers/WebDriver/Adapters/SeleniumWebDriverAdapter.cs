@@ -117,6 +117,16 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         new SeleniumWebElementAdapter(_driver.FindElement(By.XPath($"//label[text()='{label}']/following-sibling::*")));
 
     /// <summary>
+    /// Switches to the specified iframe by its locator.
+    /// </summary>
+    /// <param name="iframeLocator">The locator of the iframe to switch to.</param>
+    public void SwitchToIframe(string iframeLocator)
+    {
+        var iframe = _driver.FindElement(By.CssSelector(iframeLocator));
+        _driver.SwitchTo().Frame(iframe); // Switch to the iframe
+    }
+    
+    /// <summary>
     /// Waits for an element to be found by its XPath, retrying a specified number of times if necessary.
     /// </summary>
     /// <param name="xpath">The XPath of the element to find.</param>
@@ -156,5 +166,53 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
     /// Disposes of the WebDriver instance, quitting the browser.
     /// </summary>
     public void Dispose() => _driver.Quit();
+
+    /// <summary>
+    /// Clicks a cell in a target column based on the value of a cell in a specified column using column names.
+    /// </summary>
+    /// <param name="tableSelector">The CSS selector for the table.</param>
+    /// <param name="searchColumnName">The name of the column to search for the value.</param>
+    /// <param name="searchValue">The value to search for in the specified column.</param>
+    /// <param name="targetColumnName">The name of the column to click.</param>
+    public void ClickCellBasedOnColumnName(string tableSelector, string searchColumnName, string searchValue, string targetColumnName)
+    {
+        var headerCells = _driver.FindElements(By.CssSelector($"{tableSelector} thead th"));
+        int searchColumnIndex = -1;
+        int targetColumnIndex = -1;
+
+        // Find the indices of the search and target columns
+        for (int i = 0; i < headerCells.Count; i++)
+        {
+            var headerText = headerCells[i].Text;
+            if (headerText == searchColumnName)
+            {
+                searchColumnIndex = i;
+            }
+            if (headerText == targetColumnName)
+            {
+                targetColumnIndex = i;
+            }
+        }
+
+        if (searchColumnIndex == -1 || targetColumnIndex == -1)
+        {
+            throw new Exception($"Column '{searchColumnName}' or '{targetColumnName}' not found.");
+        }
+
+        var rows = _driver.FindElements(By.CssSelector($"{tableSelector} tbody tr"));
+
+        for (int i = 0; i < rows.Count; i++)
+        {
+            var cellValue = rows[i].FindElement(By.CssSelector($"td:nth-child({searchColumnIndex + 1})")).Text;
+            if (cellValue == searchValue)
+            {
+                var targetCell = rows[i].FindElement(By.CssSelector($"td:nth-child({targetColumnIndex + 1})"));
+                targetCell.Click();
+                return;
+            }
+        }
+
+        throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
+    }
 }
 

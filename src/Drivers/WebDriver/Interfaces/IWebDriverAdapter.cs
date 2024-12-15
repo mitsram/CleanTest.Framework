@@ -13,6 +13,7 @@ public interface IWebDriverAdapter
     IWebElementAdapter FindElementByPlaceholder(string placeholder);
     IWebElementAdapter FindElementByRole(string role);
     IWebElementAdapter FindElementByLabel(string label);
+    void SwitchToIframe(string iframeLocator);
     IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15);
     void Dispose();
 }

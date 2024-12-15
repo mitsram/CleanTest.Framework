@@ -112,6 +112,17 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         new PlaywrightWebElementAdapter(_page.Locator($"label:has-text('{label}') + *"));
 
     /// <summary>
+    /// Switches to the specified iframe by its locator.
+    /// </summary>
+    /// <param name="iframeLocator">The locator of the iframe to switch to.</param>
+    public void SwitchToIframe(string iframeLocator)
+    {
+        var iframe = _page.Locator(iframeLocator);
+        iframe.WaitForAsync().GetAwaiter().GetResult(); // Wait for the iframe to be available
+        _page.Frame(iframe).GetAwaiter().GetResult(); // Switch to the iframe
+    }
+
+    /// <summary>
     /// Waits for an element to be visible and finds it by its XPath.
     /// </summary>
     /// <param name="xpath">The XPath of the element to find.</param>
@@ -155,5 +166,110 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
     /// Disposes of the resources used by the adapter.
     /// </summary>
     public void Dispose() => _page.CloseAsync().GetAwaiter().GetResult();
+
+    /*
+     * EXPERIMENT AREA
+     */
+
+    /// <summary>
+    /// Gets the value of a specific cell in a table by its row and column indices.
+    /// </summary>
+    /// <param name="tableSelector">The CSS selector for the table.</param>
+    /// <param name="rowIndex">The index of the row (0-based).</param>
+    /// <param name="colIndex">The index of the column (0-based).</param>
+    /// <returns>The value of the cell as a string.</returns>
+    public string GetTableCellValue(string tableSelector, int rowIndex, int colIndex)
+    {
+        var cell = _page.Locator($"{tableSelector} tr:nth-child({rowIndex + 1}) td:nth-child({colIndex + 1})");
+        return cell.InnerTextAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Clicks on a specific cell in a table by its row and column indices.
+    /// </summary>
+    /// <param name="tableSelector">The CSS selector for the table.</param>
+    /// <param name="rowIndex">The index of the row (0-based).</param>
+    /// <param name="colIndex">The index of the column (0-based).</param>
+    public void ClickTableCell(string tableSelector, int rowIndex, int colIndex)
+    {
+        var cell = _page.Locator($"{tableSelector} tr:nth-child({rowIndex + 1}) td:nth-child({colIndex + 1})");
+        cell.ClickAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Clicks a cell in a target column based on the value of a cell in a specified column.
+    /// </summary>
+    /// <param name="tableSelector">The CSS selector for the table.</param>
+    /// <param name="searchColumnIndex">The index of the column to search for the value (0-based).</param>
+    /// <param name="searchValue">The value to search for in the specified column.</param>
+    /// <param name="targetColumnIndex">The index of the column to click (0-based).</param>
+    public void ClickCellBasedOnValue(string tableSelector, int searchColumnIndex, string searchValue, int targetColumnIndex)
+    {
+        var rows = _page.Locator($"{tableSelector} tr");
+        var rowCount = rows.CountAsync().GetAwaiter().GetResult();
+
+        for (int i = 0; i < rowCount; i++)
+        {
+            var cellValue = _page.Locator($"{tableSelector} tr:nth-child({i + 1}) td:nth-child({searchColumnIndex + 1})").InnerTextAsync().GetAwaiter().GetResult();
+            if (cellValue == searchValue)
+            {
+                var targetCell = _page.Locator($"{tableSelector} tr:nth-child({i + 1}) td:nth-child({targetColumnIndex + 1})");
+                targetCell.ClickAsync().GetAwaiter().GetResult();
+                return;
+            }
+        }
+
+        throw new Exception($"Value '{searchValue}' not found in column {searchColumnIndex + 1}.");
+    }
+
+    /// <summary>
+    /// Clicks a cell in a target column based on the value of a cell in a specified column using column names.
+    /// </summary>
+    /// <param name="tableSelector">The CSS selector for the table.</param>
+    /// <param name="searchColumnName">The name of the column to search for the value.</param>
+    /// <param name="searchValue">The value to search for in the specified column.</param>
+    /// <param name="targetColumnName">The name of the column to click.</param>
+    public void ClickCellBasedOnColumnName(string tableSelector, string searchColumnName, string searchValue, string targetColumnName)
+    {
+        var headerCells = _page.Locator($"{tableSelector} thead th");
+        var columnCount = headerCells.CountAsync().GetAwaiter().GetResult();
+        int searchColumnIndex = -1;
+        int targetColumnIndex = -1;
+
+        // Find the indices of the search and target columns
+        for (int i = 0; i < columnCount; i++)
+        {
+            var headerText = headerCells.Nth(i).InnerTextAsync().GetAwaiter().GetResult();
+            if (headerText == searchColumnName)
+            {
+                searchColumnIndex = i;
+            }
+            if (headerText == targetColumnName)
+            {
+                targetColumnIndex = i;
+            }
+        }
+
+        if (searchColumnIndex == -1 || targetColumnIndex == -1)
+        {
+            throw new Exception($"Column '{searchColumnName}' or '{targetColumnName}' not found.");
+        }
+
+        var rows = _page.Locator($"{tableSelector} tbody tr");
+        var rowCount = rows.CountAsync().GetAwaiter().GetResult();
+
+        for (int i = 0; i < rowCount; i++)
+        {
+            var cellValue = _page.Locator($"{tableSelector} tbody tr:nth-child({i + 1}) td:nth-child({searchColumnIndex + 1})").InnerTextAsync().GetAwaiter().GetResult();
+            if (cellValue == searchValue)
+            {
+                var targetCell = _page.Locator($"{tableSelector} tbody tr:nth-child({i + 1}) td:nth-child({targetColumnIndex + 1})");
+                targetCell.ClickAsync().GetAwaiter().GetResult();
+                return;
+            }
+        }
+
+        throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
+    }
 }
 

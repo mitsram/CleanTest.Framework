@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>CleanTest.Framework</PackageId>
-    <Version>{{Version}}</Version>
+    <!-- <Version>{{Version}}</Version> -->
     <Authors>Mitchell Ramos</Authors>
     <Company>mitsram</Company>
     <Description>Adapters and factories for clean test architecture</Description>
