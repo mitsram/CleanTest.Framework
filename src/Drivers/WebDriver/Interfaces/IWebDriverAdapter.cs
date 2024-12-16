@@ -16,5 +16,10 @@ public interface IWebDriverAdapter
     void SwitchToIframe(string iframeLocator);
     IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15);
     void Dispose();
+
+    /*
+    IFrameLocator GetFrameLocator(string name);    
+    */
+    
 }
 

@@ -214,5 +214,11 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
 
         throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
     }
+
+    public FrameLocator GetFrameLocator(string name)
+    {
+        var frameHandler = new SeleniumFrameHandler(this, name);
+        return new FrameLocator(frameHandler);
+    }
 }
 
