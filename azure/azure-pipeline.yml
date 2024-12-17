@@ -1,0 +1,40 @@
+trigger:
+- main
+
+variables:
+  - group: my-variable-group  # Reference to the variable group containing secrets
+
+stages:
+- stage: Test
+  displayName: 'Run Playwright Tests'
+  jobs:
+  - job: RunTests
+    displayName: 'Run Playwright Tests'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        echo "Running Playwright tests in Test environment"
+        dotnet restore
+        dotnet test --configuration Release
+      env:
+        PLAYWRIGHT_TEST_ENV: 'test'  # Example of setting an environment variable
+        SECRET_API_KEY: $(SecretApiKey)  # Using a secret variable
+      displayName: 'Restore and run Playwright tests'
+
+- stage: Staging
+  displayName: 'Deploy to Staging'
+  dependsOn: Test
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy to Staging Environment'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        echo "Deploying to Staging environment"
+        # Add your deployment commands here
+      env:
+        STAGING_ENV: 'staging'  # Example of setting an environment variable
+        SECRET_API_KEY: $(SecretApiKey)  # Using the same secret variable
+      displayName: 'Deploy to Staging'
