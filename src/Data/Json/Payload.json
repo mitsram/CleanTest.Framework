@@ -1,0 +1,10 @@
+{
+  "SectionOne": {
+    "Name": "One name",
+    "Description": "One description"
+  },
+  "SectionTwo": {
+    "Name": "Two name",
+    "Description": "Two description"
+  }
+}

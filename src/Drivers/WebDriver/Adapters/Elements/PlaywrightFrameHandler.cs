@@ -1,3 +1,4 @@
+using CleanTest.Framework.Drivers.WebDriver.Adapters;
 using CleanTest.Framework.WebDriver.Interfaces;
 
 public class PlaywrightFrameHandler : IFrameHandler

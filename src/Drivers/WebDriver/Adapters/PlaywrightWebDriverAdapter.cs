@@ -119,7 +119,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
     {
         var iframe = _page.Locator(iframeLocator);
         iframe.WaitForAsync().GetAwaiter().GetResult(); // Wait for the iframe to be available
-        _page.Frame(iframe).GetAwaiter().GetResult(); // Switch to the iframe
+        //_page.Frame(iframe).GetAwaiter().GetResult(); // Switch to the iframe
     }
 
     /// <summary>
