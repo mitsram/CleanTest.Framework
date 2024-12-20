@@ -271,12 +271,5 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 
         throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
     }
-
-    //
-    public FrameLocator GetFrameLocator(string name)
-    {
-        var frameHandler = new PlaywrightFrameHandler(this, name);
-        return new FrameLocator(frameHandler);
-    } 
 }
 
