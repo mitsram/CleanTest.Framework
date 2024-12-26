@@ -214,5 +214,35 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
 
         throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
     }
+
+    // Frames
+    public void SwitchToFrameByIndex(int frameIndex)
+    {
+        _driver.SwitchTo().Frame(frameIndex);
+    }
+
+    public void SwitchToFrameById(string frameId)
+    {
+        _driver.SwitchTo().Frame(frameId);
+    }
+
+    public void SwitchToDefaultContent()
+    {
+        _driver.SwitchTo().DefaultContent();
+    }
+
+    public IWebElementAdapter GetFrameElement(string selector, FrameLocatorType locatorType = FrameLocatorType.Id)
+    {
+        var by = locatorType switch
+        {
+            FrameLocatorType.Id => By.Id(selector),
+            FrameLocatorType.Name => By.Name(selector),
+            FrameLocatorType.XPath => By.XPath(selector),
+            FrameLocatorType.CssSelector => By.CssSelector(selector),
+            _ => throw new ArgumentException("Invalid locator type")
+        };
+        
+        return new SeleniumElementAdapter(_driver.FindElement(by));
+    }
 }
 

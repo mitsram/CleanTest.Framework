@@ -1,3 +1,4 @@
+using CleanTest.Framework.Drivers.WebDriver.Enums;
 using CleanTest.Framework.WebDriver.Interfaces;
 using Microsoft.Playwright;
 
@@ -270,6 +271,41 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         }
 
         throw new Exception($"Value '{searchValue}' not found in column '{searchColumnName}'.");
+    }
+
+    // Frames
+
+    public async void SwitchToFrameByIndex(int frameIndex)
+    {
+        var frames = await _page.Frames;
+        if (frameIndex < frames.Count)
+            await _page.SetContentAsync(frames[frameIndex]);
+    }
+
+    public async void SwitchToFrameById(string frameId)
+    {
+        var frame = _page.Frame(frameId);
+        if (frame != null)
+            await _page.SetContentAsync(frame);
+    }
+
+    public void SwitchToDefaultContent()
+    {
+        _page.MainFrame();
+    }
+
+    public IWebElementAdapter GetFrameElement(string selector, FrameLocatorType locatorType = FrameLocatorType.Id)
+    {
+        var frameLocator = locatorType switch
+        {
+            FrameLocatorType.Id => _page.FrameLocator($"#${selector}"),
+            FrameLocatorType.Name => _page.FrameLocator($"[name='{selector}']"),
+            FrameLocatorType.XPath => _page.FrameLocator($"xpath={selector}"),
+            FrameLocatorType.CssSelector => _page.FrameLocator(selector),
+            _ => throw new ArgumentException("Invalid locator type")
+        };
+        
+        return new PlaywrightWebElementAdapter(frameLocator);
     }
 }
 

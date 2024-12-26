@@ -15,11 +15,15 @@ public interface IWebDriverAdapter
     IWebElementAdapter FindElementByLabel(string label);
     void SwitchToIframe(string iframeLocator);
     IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15);
-    void Dispose();
-
-    /*
-    IFrameLocator GetFrameLocator(string name);    
-    */
+    void Dispose();   
     
+    // Frames
+    void SwitchToFrameByIndex(int frameIndex);
+    void SwitchToFrameById(string frameId);
+    void SwitchToFrameByName(string frameName);
+    void SwitchToDefaultContent();
+    IWebElementAdapter GetFrameElement(string frameLocator);
+    // bool WaitForFrameToBeAvailable(string frameLocator, int timeoutInSeconds = 30);
+
 }
 
