@@ -1,4 +1,5 @@
-using CleanTest.Framework.WebDriver.Interfaces;
+using CleanTest.Framework.Drivers.WebDriver.Adapters.Elements;
+using CleanTest.Framework.Drivers.WebDriver.Interfaces;
 using Microsoft.Playwright;
 
 namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
@@ -6,118 +7,56 @@ namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
 public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 {
     private readonly IPage _page;
+    private IFrameLocator _currentFrame;
     
     public PlaywrightWebDriverAdapter(IPage page)
     {
         _page = page;
     }
 
-    /// <summary>
-    /// Gets the current URL of the page.
-    /// </summary>
-    /// <returns>The current URL as a string.</returns>
     public string GetCurrentUrl() => _page.Url;
 
-    /// <summary>
-    /// Navigates to the specified URL.
-    /// </summary>
-    /// <param name="url">The URL to navigate to.</param>
     public void NavigateToUrl(string url) => _page.GotoAsync(url).GetAwaiter().GetResult();
 
-    /// <summary>
-    /// Finds an element by its ID.
-    /// </summary>
-    /// <param name="id">The ID of the element to find.</param>
-    /// <returns>An instance of <see cref="IWebElementAdapter"/> representing the found element.</returns>
-    public IWebElementAdapter FindElementById(string id) => 
-        new PlaywrightWebElementAdapter(_page.Locator($"#{id}"));
+    public IWebElementAdapter FindElementById(string id) =>
+        new PlaywrightWebElementAdapter(GetLocator($"#{id}"));
 
-    /// <summary>
-    /// Finds an element by its class name.
-    /// </summary>
-    /// <param name="className">The class name of the element to find.</param>
-    /// <returns>An instance of <see cref="IWebElementAdapter"/> representing the found element.</returns>
     public IWebElementAdapter FindElementByClassName(string className) =>
-        new PlaywrightWebElementAdapter(_page.Locator($".{className}"));
+        new PlaywrightWebElementAdapter(GetLocator($".{className}"));
 
-    /// <summary>
-    /// Finds multiple elements by their class name.
-    /// </summary>
-    /// <param name="className">The class name to use for finding elements.</param>
-    /// <returns>A collection of <see cref="IWebElementAdapter"/> representing the found elements.</returns>
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByClassName(string className) =>
-        _page.QuerySelectorAllAsync($".{className}").GetAwaiter().GetResult()
-            .Select(e => new PlaywrightElementHandleAdapter(e))
-            .ToList();
+        GetLocator($".{className}").AllAsync().GetAwaiter().GetResult()
+            .Select(e => new PlaywrightWebElementAdapter(GetLocator($".{className}")))
+            .ToList();        
 
-    /// <summary>
-    /// Finds multiple elements by their CSS selector.
-    /// </summary>
-    /// <param name="cssSelector">The CSS selector to use for finding elements.</param>
-    /// <returns>A collection of <see cref="IWebElementAdapter"/> representing the found elements.</returns>
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
-        _page.QuerySelectorAllAsync(cssSelector).GetAwaiter().GetResult()
-            .Select(e => new PlaywrightElementHandleAdapter(e))
-            .ToList();
+        GetLocator(cssSelector).AllAsync().GetAwaiter().GetResult()
+            .Select(e => new PlaywrightWebElementAdapter(GetLocator(cssSelector)))
+            .ToList();        
 
-    /// <summary>
-    /// Finds an element by its XPath.
-    /// </summary>
-    /// <param name="xpath">The XPath of the element to find.</param>
-    /// <returns>An instance of <see cref="IWebElementAdapter"/> representing the found element.</returns>
     public IWebElementAdapter FindElementByXPath(string xpath) => 
-        new PlaywrightWebElementAdapter(_page.Locator(xpath));
+        new PlaywrightWebElementAdapter(GetLocator(xpath));
 
-    /// <summary>
-    /// Finds multiple elements by their XPath.
-    /// </summary>
-    /// <param name="xpath">The XPath to use for finding elements.</param>
-    /// <returns>A collection of <see cref="IWebElementAdapter"/> representing the found elements.</returns>
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath) =>
-        _page.QuerySelectorAllAsync(xpath).GetAwaiter().GetResult()
-            .Select(e => new PlaywrightElementHandleAdapter(e))
-            .ToList();
+        GetLocator(xpath).AllAsync().GetAwaiter().GetResult()
+            .Select(e => new PlaywrightWebElementAdapter(GetLocator(xpath)))
+            .ToList();        
 
-    /// <summary>
-    /// Finds an element by its placeholder attribute.
-    /// </summary>
-    /// <param name="placeholder">The placeholder text of the element to find.</param>
-    /// <returns>
-    /// An instance of <see cref="IWebElementAdapter"/> representing the found element.
-    /// If no element is found, this method may return null or throw an exception based on implementation.
-    /// </returns>
+    public IWebElementAdapter FindElementByTagName(string tagName) =>
+        new PlaywrightWebElementAdapter(GetLocator(tagName));
+    
     public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
-        new PlaywrightWebElementAdapter(_page.Locator($"[placeholder='{placeholder}']"));
+        new PlaywrightWebElementAdapter(GetLocator($"[placeholder='{placeholder}']"));
 
-    /// <summary>
-    /// Finds an element by its role attribute.
-    /// </summary>
-    /// <param name="role">The role of the element to find.</param>
-    /// <returns>
-    /// An instance of <see cref="IWebElementAdapter"/> representing the found element.
-    /// If no element is found, this method may return null or throw an exception based on implementation.
-    /// </returns>
     public IWebElementAdapter FindElementByRole(string role) =>
-        new PlaywrightWebElementAdapter(_page.Locator($"[role='{role}']"));
+        new PlaywrightWebElementAdapter(GetLocator($"[role='{role}']"));
 
-    /// <summary>
-    /// Finds an element by its label text.
-    /// </summary>
-    /// <param name="label">The text of the label associated with the element to find.</param>
-    /// <returns>
-    /// An instance of <see cref="IWebElementAdapter"/> representing the found element.
-    /// If no element is found, this method may return null or throw an exception based on implementation.
-    /// </returns>
     public IWebElementAdapter FindElementByLabel(string label) =>
-        new PlaywrightWebElementAdapter(_page.Locator($"label:has-text('{label}') + *"));
+        new PlaywrightWebElementAdapter(GetLocator($"label:has-text('{label}') + *"));
 
-    /// <summary>
-    /// Waits for an element to be visible and finds it by its XPath.
-    /// </summary>
-    /// <param name="xpath">The XPath of the element to find.</param>
-    /// <param name="timeoutInSeconds">The timeout in seconds to wait for the element to be visible.</param>
-    /// <returns>An instance of <see cref="IWebElementAdapter"/> representing the found element.</returns>
-    /// <exception cref="Exception">Thrown if the element cannot be found within the specified attempts.</exception>
+    public IWebElementAdapter FindElementByTitle(string title) =>
+        new PlaywrightWebElementAdapter(GetLocator($"[title='{title}']"));
+
     public IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15)
     {
         const int maxRetries = 3;
@@ -147,13 +86,23 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
                 throw new Exception($"Failed to find element by XPath: {xpath}", ex);
             }
         }
-
         throw new Exception($"Failed to find element by XPath after {maxRetries} attempts: {xpath}");
     }
 
-    /// <summary>
-    /// Disposes of the resources used by the adapter.
-    /// </summary>
+    public void SwitchToIframe(string selector)
+    {
+        var frame = _page.FrameLocator(selector);
+        _currentFrame = frame;
+    }
+
+    public void SwitchToMainFrame()
+    {
+        _currentFrame = null!;
+    }
+
     public void Dispose() => _page.CloseAsync().GetAwaiter().GetResult();
+
+    private ILocator GetLocator(string selector) => 
+        _currentFrame != null ? _currentFrame.Locator(selector) : _page.Locator(selector);
 }
 
