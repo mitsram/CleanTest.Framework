@@ -1,8 +1,8 @@
 
 namespace CleanTest.Framework.Drivers.WebDriver.Enums;
 
-public enum WebDriverType
+public enum BrowserType
 {
-    Selenium,
-    Playwright
+    Chrome,
+    Firefox
 }

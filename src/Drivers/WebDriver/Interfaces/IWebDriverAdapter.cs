@@ -1,4 +1,4 @@
-namespace CleanTest.Framework.WebDriver.Interfaces;
+namespace CleanTest.Framework.Drivers.WebDriver.Interfaces;
 
 public interface IWebDriverAdapter
 {
@@ -10,10 +10,13 @@ public interface IWebDriverAdapter
     IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector);
     IWebElementAdapter FindElementByXPath(string xpath);
     IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath);
+    IWebElementAdapter FindElementByTagName(string tagName);
     IWebElementAdapter FindElementByPlaceholder(string placeholder);
-    IWebElementAdapter FindElementByRole(string role);
+    IWebElementAdapter FindElementByRole(string name);
     IWebElementAdapter FindElementByLabel(string label);
+    IWebElementAdapter FindElementByTitle(string title);
     IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15);
+    void SwitchToIframe(string selector);
+    void SwitchToMainFrame();
     void Dispose();
 }
-
