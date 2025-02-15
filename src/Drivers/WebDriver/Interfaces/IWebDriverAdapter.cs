@@ -1,6 +1,8 @@
+using Microsoft.Playwright;
+
 namespace CleanTest.Framework.Drivers.WebDriver.Interfaces;
 
-public interface IWebDriverAdapter
+public interface IWebDriverAdapter : IElementFinder
 {
     string GetCurrentUrl();
     void NavigateToUrl(string url);    
@@ -12,11 +14,15 @@ public interface IWebDriverAdapter
     IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath);
     IWebElementAdapter FindElementByTagName(string tagName);
     IWebElementAdapter FindElementByPlaceholder(string placeholder);
-    IWebElementAdapter FindElementByRole(string name);
+    IWebElementAdapter FindElementByRole(AriaRole role, string? name = null, PageGetByRoleOptions? pageOptions = null);
+    IWebElementAdapter FindElementByRole(string role, string? name = null);
     IWebElementAdapter FindElementByLabel(string label);
     IWebElementAdapter FindElementByTitle(string title);
     IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15);
     void SwitchToIframe(string selector);
     void SwitchToMainFrame();
     void Dispose();
+    IWebElementAdapter FindElementByText(string text);
+    
+    // IWebElementAdapter FindElementByCssSelector(string cssSelector);
 }

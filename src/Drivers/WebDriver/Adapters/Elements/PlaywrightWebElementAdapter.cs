@@ -17,6 +17,10 @@ public class PlaywrightWebElementAdapter(ILocator element) : IWebElementAdapter
     }
     
     public IWebElementAdapter Nth(int index) => new PlaywrightWebElementAdapter(element.Nth(index));
+    public bool IsDisplayed() => element.IsVisibleAsync().GetAwaiter().GetResult();
+
+    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
+        new PlaywrightWebElementAdapter(element.Locator(cssSelector));
 }
 
 

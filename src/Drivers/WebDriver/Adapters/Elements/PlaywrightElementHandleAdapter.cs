@@ -20,4 +20,11 @@ public class PlaywrightElementHandleAdapter(IElementHandle element) : IWebElemen
     {
         throw new NotImplementedException();
     }
+
+    public bool IsDisplayed() => element.IsVisibleAsync().GetAwaiter().GetResult();
+
+    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
+        new PlaywrightElementHandleAdapter(
+            element.WaitForSelectorAsync(cssSelector).GetAwaiter().GetResult() 
+            ?? throw new Exception($"Element not found with selector: {cssSelector}"));
 }

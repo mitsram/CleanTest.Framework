@@ -97,6 +97,32 @@ For a complete example test project using CleanTest.Framework, please visit the 
 
 * [SauceDemo.Tests](https://github.com/mitsram/SauceDemo.Tests)
 
+## How to use locally
+
+### MacOS
+#### Generate a `.nupkg` file
+```bash
+dotnet pack --configuration Release --output ~/LocalNuGet
+```
+This creates a `.nupkg` file and saves it to a directory like `/Users/yourusername/LocalNuGet`.
+#### Add the Local Directory as a NuGet Source
+```bash
+dotnet nuget add source ~/LocalNuGet --name "Local"
+```
+
+This updates your global NuGet.Config (located at `~/.nuget/NuGet/NuGet.Config`).
+
+#### Reference the Local Package in Your Project
+Using the .NET CLI
+```bash
+dotnet add YourProject.csproj package Your.Package.Name --source ~/LocalNuGet
+```
+
+#### Clearing Local NuGet cache
+```bash
+dotnet nuget locals all --clear
+```
+
 ## Contribution
 We welcome contributions to CleanTest.Framework! If you would like to contribute, please follow these steps:
 

@@ -7,7 +7,7 @@ namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
 public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 {
     private readonly IPage _page;
-    private IFrameLocator _currentFrame;
+    private IFrameLocator? _currentFrame;
     
     public PlaywrightWebDriverAdapter(IPage page)
     {
@@ -48,8 +48,54 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
     public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
         new PlaywrightWebElementAdapter(GetLocator($"[placeholder='{placeholder}']"));
 
-    public IWebElementAdapter FindElementByRole(string role) =>
-        new PlaywrightWebElementAdapter(GetLocator($"[role='{role}']"));
+    public IWebElementAdapter FindElementByRole(AriaRole role, string? name = null, PageGetByRoleOptions? pageOptions = null)
+    {
+        if (_currentFrame != null)
+        {
+            var frameOptions = new FrameLocatorGetByRoleOptions();
+            if (!string.IsNullOrEmpty(name))
+            {
+                frameOptions.Name = name;
+            }
+            var locator = _currentFrame.GetByRole(role, frameOptions);
+            return new PlaywrightWebElementAdapter(locator);
+        }
+
+        pageOptions ??= new PageGetByRoleOptions();
+        if (!string.IsNullOrEmpty(name))
+        {
+            pageOptions.Name = name;
+        }
+        
+        return new PlaywrightWebElementAdapter(_page.GetByRole(role, pageOptions));
+    }
+
+    public IWebElementAdapter FindElementByRole(string role, string? name = null)
+    {
+        if (!Enum.TryParse<AriaRole>(role, true, out var ariaRole))
+        {
+            throw new ArgumentException($"Invalid ARIA role: {role}", nameof(role));
+        }
+
+        if (_currentFrame != null)
+        {
+            var frameOptions = new FrameLocatorGetByRoleOptions();
+            if (!string.IsNullOrEmpty(name))
+            {
+                frameOptions.Name = name;
+            }
+            var locator = _currentFrame.GetByRole(ariaRole, frameOptions);
+            return new PlaywrightWebElementAdapter(locator);
+        }
+
+        var pageOptions = new PageGetByRoleOptions();
+        if (!string.IsNullOrEmpty(name))
+        {
+            pageOptions.Name = name;
+        }
+        
+        return new PlaywrightWebElementAdapter(_page.GetByRole(ariaRole, pageOptions));
+    }
 
     public IWebElementAdapter FindElementByLabel(string label) =>
         new PlaywrightWebElementAdapter(GetLocator($"label:has-text('{label}') + *"));
@@ -104,5 +150,14 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 
     private ILocator GetLocator(string selector) => 
         _currentFrame != null ? _currentFrame.Locator(selector) : _page.Locator(selector);
+
+    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
+        new PlaywrightWebElementAdapter(GetLocator(cssSelector));
+
+    public IWebElementAdapter FindElementByText(string text)
+    {
+        return new PlaywrightWebElementAdapter(_page.GetByText(text));
+    }
+
 }
 
