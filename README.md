@@ -7,12 +7,49 @@ CleanTest.Framework is a powerful solution designed to streamline your test auto
 
 Whether you're using Selenium for its extensive browser support or Playwright for its modern features, CleanTest.Framework ensures that your test suite remains robust and maintainable. Focus on delivering quality software while we handle the complexities of test automation.
 
+## Building the Project
+### Basic Buid
+```bash
+dotnet build
+```
+
+### Create NuGet package
+```bash
+dotnet pack --configuration Release
+```
+
+### Version Management with sed
+When using the `{{Version}}` placeholder in your .csproj
+
+1. Create a build script (`build.sh`)
+```bash
+#!/bin/sh
+VERSION=${1:-0.1.0}
+
+# Replace version placeholder
+sed -i.bak "s/{{Version}}/$VERSION/g" src/CleanTest.Framework.csproj
+
+# Build and package
+dotnet restore
+dotnet build
+dotnet pack --configuration Release --output ./artifacts
+
+# Optional: Cleanup backup file
+rm src/CleanTest.Framework.csproj.bak
+```
+
+2. Make executable and run:
+```bash
+chmod +x build.sh
+./build.sh 1.2.3  # Builds with version 1.2.3
+```
+
 ## How to use
 
 ### Where to install
 In the project(s) where your tests and page objects resides, search and install this package from NuGet Package Library. Or alternatively, from the command line:
 
-```
+```bash
 dotnet add package CleanTest.Framework --version 1.x
 ```
 
@@ -96,6 +133,32 @@ The `driver` is of type IWebDriverAdapter, that will be implemented by specific 
 For a complete example test project using CleanTest.Framework, please visit the following GitHub repository:
 
 * [SauceDemo.Tests](https://github.com/mitsram/SauceDemo.Tests)
+
+## How to use locally
+
+### MacOS
+1. Generate a `.nupkg` file
+```bash
+dotnet pack --configuration Release --output ~/LocalNuGet
+```
+2. This creates a `.nupkg` file and saves it to a directory like `/Users/yourusername/LocalNuGet`.
+3. Add the Local Directory as a NuGet Source
+```bash
+dotnet nuget add source ~/LocalNuGet --name "Local"
+```
+
+This updates your global NuGet.Config (located at `~/.nuget/NuGet/NuGet.Config`).
+
+4. Reference the Local Package in Your Project
+Using the .NET CLI
+```bash
+dotnet add YourProject.csproj package Your.Package.Name --source ~/LocalNuGet
+```
+
+#### Clearing Local NuGet cache
+```bash
+dotnet nuget locals all --clear
+```
 
 ## Contribution
 We welcome contributions to CleanTest.Framework! If you would like to contribute, please follow these steps:
