@@ -27,4 +27,14 @@ public class PlaywrightElementHandleAdapter(IElementHandle element) : IWebElemen
         new PlaywrightElementHandleAdapter(
             element.WaitForSelectorAsync(cssSelector).GetAwaiter().GetResult() 
             ?? throw new Exception($"Element not found with selector: {cssSelector}"));
+
+    public IWebElementAdapter FindElementByClassName(string className) =>
+        new PlaywrightElementHandleAdapter(
+            element.WaitForSelectorAsync($".{className}").GetAwaiter().GetResult()
+            ?? throw new Exception($"Element not found with class: {className}"));
+
+    public IWebElementAdapter FindElementByXPath(string xpath) =>
+        new PlaywrightElementHandleAdapter(
+            element.WaitForSelectorAsync(xpath).GetAwaiter().GetResult()
+            ?? throw new Exception($"Element not found with XPath: {xpath}"));
 }

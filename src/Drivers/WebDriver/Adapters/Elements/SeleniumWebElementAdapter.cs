@@ -39,4 +39,14 @@ public class SeleniumWebElementAdapter(SeleniumElement element) : IWebElementAda
 
     public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
         new SeleniumWebElementAdapter(element.FindElement(By.CssSelector(cssSelector)));
+
+    public IWebElementAdapter FindElementByClassName(string className) =>
+        new SeleniumWebElementAdapter(
+            element.FindElement(By.ClassName(className))
+        );
+
+    public IWebElementAdapter FindElementByXPath(string xpath) =>
+        new SeleniumWebElementAdapter(
+            element.FindElement(By.XPath(xpath))
+        );
 }

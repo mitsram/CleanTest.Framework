@@ -29,6 +29,9 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
             .Select(e => new PlaywrightWebElementAdapter(GetLocator($".{className}")))
             .ToList();        
 
+    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
+        new PlaywrightWebElementAdapter(GetLocator(cssSelector));
+    
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
         GetLocator(cssSelector).AllAsync().GetAwaiter().GetResult()
             .Select(e => new PlaywrightWebElementAdapter(GetLocator(cssSelector)))
@@ -45,8 +48,23 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
     public IWebElementAdapter FindElementByTagName(string tagName) =>
         new PlaywrightWebElementAdapter(GetLocator(tagName));
     
-    public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
-        new PlaywrightWebElementAdapter(GetLocator($"[placeholder='{placeholder}']"));
+    public IWebElementAdapter FindElementByText(string text)
+    {
+        if (_currentFrame != null)
+        {
+            return new PlaywrightWebElementAdapter(_currentFrame.GetByText(text, new FrameLocatorGetByTextOptions { Exact = true }));
+        }
+        return new PlaywrightWebElementAdapter(_page.GetByText(text, new PageGetByTextOptions { Exact = true }));
+    }
+
+    public IWebElementAdapter FindElementByPlaceholder(string placeholder)
+    {
+        if (_currentFrame != null)
+        {
+            return new PlaywrightWebElementAdapter(_currentFrame.GetByPlaceholder(placeholder));
+        }
+        return new PlaywrightWebElementAdapter(_page.GetByPlaceholder(placeholder));
+    }
 
     public IWebElementAdapter FindElementByRole(AriaRole role, string? name = null, PageGetByRoleOptions? pageOptions = null)
     {
@@ -97,11 +115,23 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         return new PlaywrightWebElementAdapter(_page.GetByRole(ariaRole, pageOptions));
     }
 
-    public IWebElementAdapter FindElementByLabel(string label) =>
-        new PlaywrightWebElementAdapter(GetLocator($"label:has-text('{label}') + *"));
+    public IWebElementAdapter FindElementByLabel(string label)
+    {
+        if (_currentFrame != null)
+        {
+            return new PlaywrightWebElementAdapter(_currentFrame.GetByLabel(label, new FrameLocatorGetByLabelOptions { Exact = true }));
+        }
+        return new PlaywrightWebElementAdapter(_page.GetByLabel(label, new PageGetByLabelOptions { Exact = true }));
+    }
 
-    public IWebElementAdapter FindElementByTitle(string title) =>
-        new PlaywrightWebElementAdapter(GetLocator($"[title='{title}']"));
+    public IWebElementAdapter FindElementByTitle(string title)
+    {
+        if (_currentFrame != null)
+        {
+            return new PlaywrightWebElementAdapter(_currentFrame.GetByTitle(title));
+        }
+        return new PlaywrightWebElementAdapter(_page.GetByTitle(title));
+    }
 
     public IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15)
     {
@@ -150,14 +180,5 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 
     private ILocator GetLocator(string selector) => 
         _currentFrame != null ? _currentFrame.Locator(selector) : _page.Locator(selector);
-
-    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
-        new PlaywrightWebElementAdapter(GetLocator(cssSelector));
-
-    public IWebElementAdapter FindElementByText(string text)
-    {
-        return new PlaywrightWebElementAdapter(_page.GetByText(text));
-    }
-
 }
 

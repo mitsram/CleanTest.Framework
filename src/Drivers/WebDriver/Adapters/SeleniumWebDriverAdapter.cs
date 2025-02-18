@@ -30,7 +30,10 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         _driver.FindElements(By.ClassName(className))
             .Select(e => new SeleniumWebElementAdapter(e))
             .ToList();
-
+    
+    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
+        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector(cssSelector)));
+    
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
         _driver.FindElements(By.CssSelector(cssSelector))
             .Select(e => new SeleniumWebElementAdapter(e))
@@ -46,6 +49,27 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
 
     public IWebElementAdapter FindElementByTagName(string tagName) =>
         new SeleniumWebElementAdapter(_driver.FindElement(By.TagName(tagName)));
+    
+    public IWebElementAdapter FindElementByText(string text)
+    {
+        var escapedText = text
+            .Replace("'", "&apos;")
+            .Replace("\"", "&quot;");
+        
+        var xpath = $"""
+                     //*[translate(normalize-space(), 
+                                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 
+                                 'abcdefghijklmnopqrstuvwxyz') 
+                             = 
+                             translate('{escapedText}', 
+                                     'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 
+                                     'abcdefghijklmnopqrstuvwxyz')]
+                     """;
+            
+        return new SeleniumWebElementAdapter(
+            _driver.FindElement(By.XPath(xpath))
+        );
+    }
     
     public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
         new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector($"[placeholder='{placeholder}']")));
@@ -126,29 +150,5 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         var nestedElement = _driver.FindElement(By.XPath($"//label[contains(., '{label}')]//input"));
         return new SeleniumWebElementAdapter(nestedElement);
     }
-
-    public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector(cssSelector)));
-
-    public IWebElementAdapter FindElementByText(string text)
-    {
-        var escapedText = text
-            .Replace("'", "&apos;")
-            .Replace("\"", "&quot;");
-        
-        var xpath = $"""
-            //*[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')) 
-                = translate('{escapedText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]
-            | //*[contains(
-                translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 
-                translate('{escapedText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')
-              )]
-            """;
-        
-        return new SeleniumWebElementAdapter(
-            _driver.FindElement(By.XPath(xpath))
-        );
-    }
-
 }
 
