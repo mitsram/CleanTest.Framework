@@ -132,7 +132,8 @@ The `driver` is of type IWebDriverAdapter, that will be implemented by specific 
 
 For a complete example test project using CleanTest.Framework, please visit the following GitHub repository:
 
-* [SauceDemo.Tests](https://github.com/mitsram/SauceDemo.Tests)
+* UI: [SauceDemo.Tests](https://github.com/mitsram/SauceDemo.Tests)
+* API: [PetStore.Api.Tests](https://github.com/mitsram/CArch.PetStore.Api.Tests)
 
 ## How to use locally
 
