@@ -1,17 +1,18 @@
 using CleanTest.Framework.Drivers.ApiDriver.Adapters;
 using CleanTest.Framework.Drivers.ApiDriver.Interfaces;
+using CleanTest.Framework.Drivers.WebDriver.Enums;
 
 namespace CleanTest.Framework.Factories;
 
 public static class ApiDriverFactory
 {    
-    public static IApiDriverAdapter Create(string baseUrl, string clientType = "RestSharp")
+    public static IApiDriverAdapter Create(string baseUrl, ApiDriverType apiDriverType)
     {
-        return clientType.ToLower() switch
+        return apiDriverType switch
         {
-            "httpclient" => new HttpClientAdapter(baseUrl),
-            "restsharp" => new RestSharpAdapter(baseUrl),
-            _ => throw new ArgumentException($"Unsupported API client type: {clientType}")
+            ApiDriverType.Playwright => new PlaywrightApiAdapter(baseUrl),
+            ApiDriverType.RestSharp => new RestSharpAdapter(baseUrl),            
+            _ => throw new ArgumentException($"Unsupported API client type: {apiDriverType}")
         };
     }
 }
