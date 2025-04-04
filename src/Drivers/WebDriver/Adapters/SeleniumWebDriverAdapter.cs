@@ -7,48 +7,41 @@ using OpenQA.Selenium.Support.UI;
 
 namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
 
-public class SeleniumWebDriverAdapter : IWebDriverAdapter
+public class SeleniumWebDriverAdapter(IWebDriver driver) : IWebDriverAdapter
 {
-    private readonly IWebDriver _driver;
-    
-    public SeleniumWebDriverAdapter(IWebDriver driver)
-    {
-        _driver = driver;
-    }
+    public string GetCurrentUrl() => driver.Url;
 
-    public string GetCurrentUrl() => _driver.Url;
-
-    public void NavigateToUrl(string url) => _driver.Navigate().GoToUrl(url);
+    public void NavigateToUrl(string url) => driver.Navigate().GoToUrl(url);
 
     public IWebElementAdapter FindElementById(string id) => 
-        new SeleniumWebElementAdapter(_driver.FindElement(By.Id(id)));
+        new SeleniumWebElementAdapter(driver.FindElement(By.Id(id)));
 
     public IWebElementAdapter FindElementByClassName(string className) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.ClassName(className)));
+        new SeleniumWebElementAdapter(driver.FindElement(By.ClassName(className)));
 
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByClassName(string className) =>
-        _driver.FindElements(By.ClassName(className))
+        driver.FindElements(By.ClassName(className))
             .Select(e => new SeleniumWebElementAdapter(e))
             .ToList();
     
     public IWebElementAdapter FindElementByCssSelector(string cssSelector) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector(cssSelector)));
+        new SeleniumWebElementAdapter(driver.FindElement(By.CssSelector(cssSelector)));
     
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByCssSelector(string cssSelector) =>
-        _driver.FindElements(By.CssSelector(cssSelector))
+        driver.FindElements(By.CssSelector(cssSelector))
             .Select(e => new SeleniumWebElementAdapter(e))
             .ToList();
 
     public IWebElementAdapter FindElementByXPath(string xpath) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.XPath(xpath)));
+        new SeleniumWebElementAdapter(driver.FindElement(By.XPath(xpath)));
 
     public IReadOnlyCollection<IWebElementAdapter> FindElementsByXPath(string xpath) =>
-        _driver.FindElements(By.XPath(xpath))
+        driver.FindElements(By.XPath(xpath))
             .Select(e => new SeleniumWebElementAdapter(e))
             .ToList();
 
     public IWebElementAdapter FindElementByTagName(string tagName) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.TagName(tagName)));
+        new SeleniumWebElementAdapter(driver.FindElement(By.TagName(tagName)));
     
     public IWebElementAdapter FindElementByText(string text)
     {
@@ -67,12 +60,12 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
                      """;
             
         return new SeleniumWebElementAdapter(
-            _driver.FindElement(By.XPath(xpath))
+            driver.FindElement(By.XPath(xpath))
         );
     }
     
     public IWebElementAdapter FindElementByPlaceholder(string placeholder) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector($"[placeholder='{placeholder}']")));
+        new SeleniumWebElementAdapter(driver.FindElement(By.CssSelector($"[placeholder='{placeholder}']")));
 
     public IWebElementAdapter FindElementByRole(string role, string? name = null)
     {
@@ -81,7 +74,7 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         {
             selector += $"[name='{name}']";
         }
-        return new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector(selector)));
+        return new SeleniumWebElementAdapter(driver.FindElement(By.CssSelector(selector)));
     }
 
     public IWebElementAdapter FindElementByRole(AriaRole role, string? name = null, PageGetByRoleOptions? pageOptions = null)
@@ -90,7 +83,7 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
     }
 
     public IWebElementAdapter FindElementByTitle(string title) =>
-        new SeleniumWebElementAdapter(_driver.FindElement(By.CssSelector($"[title='{title}']")));
+        new SeleniumWebElementAdapter(driver.FindElement(By.CssSelector($"[title='{title}']")));
 
     public IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15)
     {
@@ -101,7 +94,7 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
         {
             try
             {
-                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
                 var element = wait.Until(driver => driver.FindElement(By.XPath(xpath)));
                 return new SeleniumWebElementAdapter(element);
             }
@@ -123,31 +116,31 @@ public class SeleniumWebDriverAdapter : IWebDriverAdapter
 
     public void SwitchToIframe(string selector)
     {
-        var iframe = _driver.FindElement(By.CssSelector(selector));
-        _driver.SwitchTo().Frame(iframe);
+        var iframe = driver.FindElement(By.CssSelector(selector));
+        driver.SwitchTo().Frame(iframe);
     }
 
     public void SwitchToMainFrame()
     {
-        _driver.SwitchTo().DefaultContent();
+        driver.SwitchTo().DefaultContent();
     }
 
-    public void Dispose() => _driver.Quit();
+    public void Dispose() => driver.Quit();
 
     public IWebElementAdapter FindElementByLabel(string label)
     {
         // First try label with matching text and 'for' attribute
-        var labelElement = _driver.FindElements(By.XPath($"//label[. = '{label}']"))
+        var labelElement = driver.FindElements(By.XPath($"//label[. = '{label}']"))
             .FirstOrDefault(e => !string.IsNullOrEmpty(e.GetAttribute("for")));
 
         if (labelElement != null)
         {
             var targetId = labelElement.GetAttribute("for");
-            return new SeleniumWebElementAdapter(_driver.FindElement(By.Id(targetId)));
+            return new SeleniumWebElementAdapter(driver.FindElement(By.Id(targetId)));
         }
 
         // Then try label containing nested form elements
-        var nestedElement = _driver.FindElement(By.XPath($"//label[contains(., '{label}')]//input"));
+        var nestedElement = driver.FindElement(By.XPath($"//label[contains(., '{label}')]//input"));
         return new SeleniumWebElementAdapter(nestedElement);
     }
 }

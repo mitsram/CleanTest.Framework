@@ -4,19 +4,13 @@ using Microsoft.Playwright;
 
 namespace CleanTest.Framework.Drivers.WebDriver.Adapters;
 
-public class PlaywrightWebDriverAdapter : IWebDriverAdapter
+public class PlaywrightWebDriverAdapter(IPage page) : IWebDriverAdapter
 {
-    private readonly IPage _page;
     private IFrameLocator? _currentFrame;
-    
-    public PlaywrightWebDriverAdapter(IPage page)
-    {
-        _page = page;
-    }
 
-    public string GetCurrentUrl() => _page.Url;
+    public string GetCurrentUrl() => page.Url;
 
-    public void NavigateToUrl(string url) => _page.GotoAsync(url).GetAwaiter().GetResult();
+    public void NavigateToUrl(string url) => page.GotoAsync(url).GetAwaiter().GetResult();
 
     public IWebElementAdapter FindElementById(string id) =>
         new PlaywrightWebElementAdapter(GetLocator($"#{id}"));
@@ -54,7 +48,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         {
             return new PlaywrightWebElementAdapter(_currentFrame.GetByText(text, new FrameLocatorGetByTextOptions { Exact = true }));
         }
-        return new PlaywrightWebElementAdapter(_page.GetByText(text, new PageGetByTextOptions { Exact = true }));
+        return new PlaywrightWebElementAdapter(page.GetByText(text, new PageGetByTextOptions { Exact = true }));
     }
 
     public IWebElementAdapter FindElementByPlaceholder(string placeholder)
@@ -63,7 +57,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         {
             return new PlaywrightWebElementAdapter(_currentFrame.GetByPlaceholder(placeholder));
         }
-        return new PlaywrightWebElementAdapter(_page.GetByPlaceholder(placeholder));
+        return new PlaywrightWebElementAdapter(page.GetByPlaceholder(placeholder));
     }
 
     public IWebElementAdapter FindElementByRole(AriaRole role, string? name = null, PageGetByRoleOptions? pageOptions = null)
@@ -85,7 +79,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
             pageOptions.Name = name;
         }
         
-        return new PlaywrightWebElementAdapter(_page.GetByRole(role, pageOptions));
+        return new PlaywrightWebElementAdapter(page.GetByRole(role, pageOptions));
     }
 
     public IWebElementAdapter FindElementByRole(string role, string? name = null)
@@ -112,7 +106,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
             pageOptions.Name = name;
         }
         
-        return new PlaywrightWebElementAdapter(_page.GetByRole(ariaRole, pageOptions));
+        return new PlaywrightWebElementAdapter(page.GetByRole(ariaRole, pageOptions));
     }
 
     public IWebElementAdapter FindElementByLabel(string label)
@@ -121,7 +115,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         {
             return new PlaywrightWebElementAdapter(_currentFrame.GetByLabel(label, new FrameLocatorGetByLabelOptions { Exact = true }));
         }
-        return new PlaywrightWebElementAdapter(_page.GetByLabel(label, new PageGetByLabelOptions { Exact = true }));
+        return new PlaywrightWebElementAdapter(page.GetByLabel(label, new PageGetByLabelOptions { Exact = true }));
     }
 
     public IWebElementAdapter FindElementByTitle(string title)
@@ -130,7 +124,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         {
             return new PlaywrightWebElementAdapter(_currentFrame.GetByTitle(title));
         }
-        return new PlaywrightWebElementAdapter(_page.GetByTitle(title));
+        return new PlaywrightWebElementAdapter(page.GetByTitle(title));
     }
 
     public IWebElementAdapter WaitAndFindElementByXPath(string xpath, int timeoutInSeconds = 15)
@@ -142,7 +136,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         {
             try
             {
-                var locator = _page.Locator($"xpath={xpath}");
+                var locator = page.Locator($"xpath={xpath}");
                 locator.WaitForAsync(new LocatorWaitForOptions 
                 { 
                     State = WaitForSelectorState.Visible, 
@@ -167,7 +161,7 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
 
     public void SwitchToIframe(string selector)
     {
-        var frame = _page.FrameLocator(selector);
+        var frame = page.FrameLocator(selector);
         _currentFrame = frame;
     }
 
@@ -176,9 +170,9 @@ public class PlaywrightWebDriverAdapter : IWebDriverAdapter
         _currentFrame = null!;
     }
 
-    public void Dispose() => _page.CloseAsync().GetAwaiter().GetResult();
+    public void Dispose() => page.CloseAsync().GetAwaiter().GetResult();
 
     private ILocator GetLocator(string selector) => 
-        _currentFrame != null ? _currentFrame.Locator(selector) : _page.Locator(selector);
+        _currentFrame != null ? _currentFrame.Locator(selector) : page.Locator(selector);
 }
 

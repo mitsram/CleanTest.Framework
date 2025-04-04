@@ -10,12 +10,12 @@ Whether you're using Selenium for its extensive browser support or Playwright fo
 ## Building the Project
 ### Basic Buid
 ```bash
-dotnet build
+dotnet build -p:Version=<version>
 ```
 
 ### Create NuGet package
 ```bash
-dotnet pack --configuration Release
+dotnet pack -p:Version=<version> --configuration Release
 ```
 
 ### Version Management with sed
