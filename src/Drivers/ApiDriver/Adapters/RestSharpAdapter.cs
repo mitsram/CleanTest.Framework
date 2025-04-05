@@ -54,7 +54,7 @@ public sealed class RestSharpAdapter : IApiDriverAdapter
 
         if (disposing)
         {
-            _client?.Dispose();
+            _client.Dispose();
         }
         _disposed = true;
     }
