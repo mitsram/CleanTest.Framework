@@ -11,18 +11,20 @@ namespace CleanTest.Framework.Factories;
 
 public static class WebDriverFactory
 {    
-    public static IWebDriverAdapter Create(WebDriverType webDriverType, BrowserType browserType, bool headless = true)
+    public static IWebDriverAdapter Create(WebDriverType webDriverType, BrowserType browserType, Dictionary<string, object> launchOptions)
     {
         return webDriverType switch
         {
-            WebDriverType.Selenium => new SeleniumWebDriverAdapter(CreateSeleniumDriver(browserType, headless)),
-            WebDriverType.Playwright => new PlaywrightWebDriverAdapter(CreatePlaywrightDriver(browserType, headless)),
+            WebDriverType.Selenium => new SeleniumWebDriverAdapter(CreateSeleniumDriver(browserType, launchOptions)),
+            WebDriverType.Playwright => new PlaywrightWebDriverAdapter(CreatePlaywrightDriver(browserType, launchOptions)),
             _ => throw new ArgumentException("Invalid WebDriverType"),
         };
     }
     
-    private static IWebDriver CreateSeleniumDriver(BrowserType browserType, bool headless)
+    private static IWebDriver CreateSeleniumDriver(BrowserType browserType, Dictionary<string, object> launchOptions)
     {
+        var headless = launchOptions != null && launchOptions.TryGetValue("Headless", out var headlessValue) ? Convert.ToBoolean(headlessValue) : true;
+        
         switch (browserType)
         {
             case BrowserType.Chrome:
@@ -57,19 +59,19 @@ public static class WebDriverFactory
         }
     }
     
-    private static IPage CreatePlaywrightDriver(BrowserType browserType, bool headless)
+    private static IPage CreatePlaywrightDriver(BrowserType browserType, Dictionary<string, object> launchOptions)
     {
-        var browser = CreatePlaywrightBrowser(browserType, headless);
+        var browser = CreatePlaywrightBrowser(browserType, launchOptions);
         var context = CreateBrowserContext(browser).GetAwaiter().GetResult();
         return context.NewPageAsync().GetAwaiter().GetResult();
     }
     
-    private static IBrowser CreatePlaywrightBrowser(BrowserType browserType, bool headless)
+    private static IBrowser CreatePlaywrightBrowser(BrowserType browserType, Dictionary<string, object> options)
     {
         var playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
         var launchOptions = new BrowserTypeLaunchOptions 
         { 
-            Headless = headless // Set headless mode based on configuration
+            Headless = options != null && options.TryGetValue("Headless", out var headless) ? Convert.ToBoolean(headless) : true
         };
 
         return browserType switch
