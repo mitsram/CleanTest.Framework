@@ -60,13 +60,27 @@ In your test project, create TestConfiguration class, to read your configuration
 using CleanTest.Framework.Drivers.WebDriver.Enums;
 using Microsoft.Extensions.Configuration;
 
-public class TestConfiguration(IConfiguration configuration)
+public class TestConfiguration
 {
-    public WebDriverType WebDriverType { get; } = configuration.GetValue<WebDriverType>("WebDriverType", WebDriverType.Selenium);
-    public BrowserType BrowserType { get; } = configuration.GetValue<BrowserType>("BrowserType", BrowserType.Chrome);
-    public string BaseUrl { get; } = configuration.GetValue<string>("TestSettings:BaseUrl", "https://www.example.com/");
-    public int Timeout { get; } = configuration.GetValue<int>("TestSettings:Timeout", 30);
+    public BrowserType BrowserType { get; }
+    public Dictionary<string, object> Options { get; } = new();
+
+    public TestConfiguration(IConfiguration configuration)
+    {
+        BrowserType = configuration.GetValue<BrowserType>("BrowserType");
+        configuration.GetSection("Options").Bind(Options);
+    }
 }
+```
+
+Add these in your .csproj for test project file:
+
+```csharp
+<ItemGroup>
+    <None Update="Config/testconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+ </ItemGroup>
 ```
 
 Create a testconfig.json file to hold your configuration:
@@ -75,6 +89,9 @@ Create a testconfig.json file to hold your configuration:
 {
     "WebDriverType": "Selenium",
     "BrowserType": "Chrome",
+    "Options": {
+      "Headless": false
+    },
     "TestSettings": {
       "BaseUrl": "https://www.example.com",
       "Timeout": 30
